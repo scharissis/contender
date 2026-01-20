@@ -189,7 +189,7 @@ pub async fn run_campaign(
 
     loop {
         tokio::select! {
-            _ = async {
+            result = async {
                 for (stage_idx, stage) in stages.iter().enumerate() {
                     info!(
                         campaign_id = %campaign_id,
@@ -240,6 +240,8 @@ pub async fn run_campaign(
                 }
                 Ok::<_, CliError>(())
             } => {
+                // Propagate errors from stage execution instead of silently dropping them
+                result?;
                 if args.run_forever {
                     info!("Campaign {campaign_id} completed. Running again due to --forever flag.");
                     continue;
